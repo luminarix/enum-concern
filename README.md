@@ -15,30 +15,10 @@ You can install the package via composer:
 composer require luminarix/enum-concern
 ```
 
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag="enum-concern-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
-
-```bash
-php artisan vendor:publish --tag="enum-concern-config"
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag="enum-concern-views"
-```
-
 ## Usage
 
 ```php
-$enumConcern = new Luminarix\EnumConcern();
-echo $enumConcern->echoPhrase('Hello, Luminarix!');
+// Coming soon...
 ```
 
 ## Testing
