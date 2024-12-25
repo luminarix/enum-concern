@@ -92,7 +92,7 @@ trait EnumConcern
     /**
      * Selects and returns a random enum case.
      */
-    public static function random(int $count = 1): Collection
+    public static function random(?int $count = null): Collection|static
     {
         return self::toCollection()->random($count);
     }

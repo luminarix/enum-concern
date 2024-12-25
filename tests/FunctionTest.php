@@ -61,6 +61,14 @@ function testEnumMethods($enumClass, $expectedValues, $expectedNames, $expectedA
             ->toBeIn($enumClass::cases());
     });
 
+    it("gets a random enum case for {$enumClass} with count", function () use ($enumClass) {
+        $test = $enumClass::random(2);
+
+        expect($test)
+            ->toBeInstanceOf(Collection::class)
+            ->toHaveCount(2);
+    });
+
     it("checks if a value exists in the enum for {$enumClass}", function () use ($enumClass, $expectedValues) {
         $exists = $enumClass::hasValue($expectedValues[0]);
         $notExists = $enumClass::hasValue('nonexistent');
