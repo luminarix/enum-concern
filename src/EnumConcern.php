@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Luminarix\EnumConcern;
 
 use BackedEnum;
@@ -11,12 +13,20 @@ use UnitEnum;
 trait EnumConcern
 {
     /**
+     * Check if the current enum is a BackedEnum.
+     */
+    public static function isBackedEnum(): bool
+    {
+        return is_subclass_of(static::class, BackedEnum::class);
+    }
+
+    /**
      * Retrieves a Collection of all the values defined in the enum.
      * For pure enums, returns the names as values.
      */
     public static function values(): Collection
     {
-        if (is_subclass_of(self::class, BackedEnum::class)) {
+        if (static::isBackedEnum()) {
             return self::toCollection()->pluck('value');
         }
 
@@ -55,8 +65,8 @@ trait EnumConcern
      */
     public static function toSelectCollection(): Collection
     {
-        return self::toCollection()->mapWithKeys(function ($case) {
-            $key = is_subclass_of(self::class, BackedEnum::class) ? $case->value : $case->name;
+        return self::toCollection()->mapWithKeys(function (UnitEnum $case) {
+            $key = static::isBackedEnum() ? $case->value : $case->name;
 
             return [$key => self::getLabel($case)];
         });
@@ -67,7 +77,7 @@ trait EnumConcern
      */
     public static function labels(): Collection
     {
-        return self::toCollection()->mapWithKeys(fn ($case) => [$case->name => self::getLabel($case)]);
+        return self::toCollection()->mapWithKeys(fn (UnitEnum $case) => [$case->name => self::getLabel($case)]);
     }
 
     /**
@@ -82,29 +92,29 @@ trait EnumConcern
     /**
      * Selects and returns a random enum case.
      */
-    public static function random(): self
+    public static function random(int $count = 1): Collection
     {
-        return self::toCollection()->random();
+        return self::toCollection()->random($count);
     }
 
     /**
      * Attempts to return the enum case for the given value; returns null if not found.
      * For pure enums, uses the name instead.
      */
-    public static function tryFromValue(mixed $value): ?self
+    public static function tryFromValue(mixed $value): ?static
     {
-        if (is_subclass_of(self::class, BackedEnum::class)) {
-            return self::tryFrom($value);
+        if (static::isBackedEnum()) {
+            return static::tryFrom($value);
         }
 
         // For pure enums, value is the name
-        return self::tryFromName($value);
+        return self::tryFromName((string)$value);
     }
 
     /**
      * Attempts to return the enum case for the given name; returns null if not found.
      */
-    public static function tryFromName(string $name): ?self
+    public static function tryFromName(string $name): ?static
     {
         return self::toCollection()->firstWhere('name', $name);
     }
@@ -115,12 +125,12 @@ trait EnumConcern
      */
     public static function hasValue(mixed $value): bool
     {
-        if (is_subclass_of(self::class, BackedEnum::class)) {
+        if (static::isBackedEnum()) {
             return self::values()->contains($value);
         }
 
         // For pure enums, value is the name
-        return self::hasName($value);
+        return self::hasName((string)$value);
     }
 
     /**
@@ -144,7 +154,7 @@ trait EnumConcern
      */
     public function isNot(self $other): bool
     {
-        return $this !== $other;
+        return !$this->is($other);
     }
 
     /**
@@ -157,21 +167,29 @@ trait EnumConcern
     }
 
     /**
-     * Returns any additional attributes associated with the enum case.
+     * Returns attributes associated with the enum case.
      */
     public function getAttributes(): array
     {
-        // Implement attribute retrieval logic here.
-        return [];
+        $reflection = new ReflectionClass($this);
+        $caseName = $this->name;
+        $attrs = $reflection->getReflectionConstant($caseName)?->getAttributes() ?? [];
+
+        $attributes = [];
+        foreach ($attrs as $attr) {
+            $attributes[$attr->getName()] = $attr->getArguments();
+        }
+
+        return $attributes;
     }
 
     /**
      * Gets the next enum case in the sequence.
      */
-    public function next(): ?self
+    public function next(): ?static
     {
         $cases = self::toCollection();
-        $index = $cases->search($this, true);
+        $index = $cases->search($this, strict: true);
 
         return $cases->get($index + 1);
     }
@@ -179,10 +197,10 @@ trait EnumConcern
     /**
      * Gets the previous enum case in the sequence.
      */
-    public function previous(): ?self
+    public function previous(): ?static
     {
         $cases = self::toCollection();
-        $index = $cases->search($this, true);
+        $index = $cases->search($this, strict: true);
 
         return $cases->get($index - 1);
     }
@@ -192,9 +210,12 @@ trait EnumConcern
      */
     public function index(): ?int
     {
+        /**
+         * @var int|false $index
+         */
         $index = self::toCollection()->search($this, true);
 
-        return $index !== false ? $index : null;
+        return ($index !== false) ? $index : null;
     }
 
     /**
@@ -212,12 +233,12 @@ trait EnumConcern
     {
         $data = json_decode($json, true);
 
-        if (is_subclass_of(self::class, BackedEnum::class)) {
-            return collect($data)->map(fn ($value) => self::from($value));
+        if (static::isBackedEnum()) {
+            return collect($data)->map(fn (mixed $value) => static::from($value));
         }
 
         // For pure enums, keys are names
-        return collect($data)->keys()->map(fn ($name) => self::tryFromName($name));
+        return collect($data)->keys()->map(fn (string $name) => self::tryFromName($name));
     }
 
     /**
@@ -225,7 +246,7 @@ trait EnumConcern
      */
     public static function rules(): array
     {
-        $values = is_subclass_of(self::class, BackedEnum::class) ? self::values() : self::names();
+        $values = static::isBackedEnum() ? self::values() : self::names();
 
         return ['in:' . $values->implode(',')];
     }
@@ -235,8 +256,8 @@ trait EnumConcern
      */
     public static function transLabels(): Collection
     {
-        return self::toCollection()->mapWithKeys(function ($case) {
-            $key = is_subclass_of(self::class, BackedEnum::class) ? $case->value : $case->name;
+        return self::toCollection()->mapWithKeys(function (UnitEnum $case) {
+            $key = static::isBackedEnum() ? $case->value : $case->name;
 
             return [$key => __($case->name)];
         });
@@ -251,26 +272,17 @@ trait EnumConcern
     }
 
     /**
-     * Specifies a default enum case, if applicable.
-     */
-    public static function getDefault(): ?self
-    {
-        // Define your default case logic here.
-        return null;
-    }
-
-    /**
      * Retrieves the name/key associated with a given value.
      * For pure enums, returns the name if it exists.
      */
     public static function getKeyByValue(mixed $value): ?string
     {
-        if (is_subclass_of(self::class, BackedEnum::class)) {
+        if (static::isBackedEnum()) {
             return self::tryFromValue($value)?->name;
         }
 
         // For pure enums, value is the name
-        return self::hasName($value) ? $value : null;
+        return self::hasName((string)$value) ? (string)$value : null;
     }
 
     /**
@@ -279,7 +291,7 @@ trait EnumConcern
      */
     public static function getValueByKey(string $key): mixed
     {
-        if (is_subclass_of(self::class, BackedEnum::class)) {
+        if (static::isBackedEnum()) {
             return self::tryFromName($key)?->value;
         }
 
@@ -332,9 +344,11 @@ trait EnumConcern
      */
     public static function sort(string $direction = 'asc'): Collection
     {
-        $sorted = self::toCollection()->sortBy(function ($case) {
-            return is_subclass_of(self::class, BackedEnum::class) ? $case->value : $case->name;
-        }, SORT_REGULAR, $direction === 'desc');
+        $sorted = self::toCollection()->sortBy(
+            callback: fn (UnitEnum $case) => static::isBackedEnum() ? $case->value : $case->name,
+            options: SORT_REGULAR,
+            descending: ($direction === 'desc')
+        );
 
         return $sorted->values();
     }
@@ -352,7 +366,7 @@ trait EnumConcern
      */
     public static function contains(mixed $valueOrName): bool
     {
-        return self::hasValue($valueOrName) || self::hasName($valueOrName);
+        return self::hasValue($valueOrName) || self::hasName((string)$valueOrName);
     }
 
     /**
@@ -361,8 +375,8 @@ trait EnumConcern
      */
     public static function toKeyValueCollection(): Collection
     {
-        return self::toCollection()->mapWithKeys(function ($case) {
-            $value = is_subclass_of(self::class, BackedEnum::class) ? $case->value : $case->name;
+        return self::toCollection()->mapWithKeys(function (UnitEnum $case) {
+            $value = static::isBackedEnum() ? $case->value : $case->name;
 
             return [$case->name => $value];
         });
@@ -374,5 +388,53 @@ trait EnumConcern
     public static function listConstants(): array
     {
         return (new ReflectionClass(static::class))->getConstants();
+    }
+
+    /**
+     * Return the first case (or null if empty).
+     */
+    public static function first(): ?static
+    {
+        return self::toCollection()->first();
+    }
+
+    /**
+     * Return the last case (or null if empty).
+     */
+    public static function last(): ?static
+    {
+        return self::toCollection()->last();
+    }
+
+    /**
+     * Return how many cases are in the enum.
+     */
+    public static function count(): int
+    {
+        return self::toCollection()->count();
+    }
+
+    /**
+     * Returns a new collection containing only the specified enum cases.
+     *
+     * @param  array<static>|Collection<static>  $cases
+     */
+    public static function only(Collection|array $cases): Collection
+    {
+        $cases = collect($cases);
+
+        return self::filter(fn (UnitEnum $case) => $cases->contains($case));
+    }
+
+    /**
+     * Returns a new collection excluding the specified enum cases.
+     *
+     * @param  array<static>|Collection<static>  $cases
+     */
+    public static function except(Collection|array $cases): Collection
+    {
+        $cases = collect($cases);
+
+        return self::filter(fn (UnitEnum $case) => !$cases->contains($case));
     }
 }
