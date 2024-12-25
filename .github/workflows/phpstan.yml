@@ -22,10 +22,13 @@ jobs:
           coverage: none
           tools: phpstan
 
+      - name: Remove development dependencies
+        run: |
+          jq -r '."require-dev" | keys[]' composer.json \
+            | xargs -- composer remove --no-interaction --dev --no-update --no-plugins --no-scripts
+
       - name: Install composer dependencies
         uses: ramsey/composer-install@v3
-        with:
-          composer-options: "--no-dev"
 
       - name: Run PHPStan
         run: phpstan
