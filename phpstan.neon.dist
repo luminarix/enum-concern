@@ -6,4 +6,6 @@ parameters:
     paths:
         - src
         - tests/FunctionTest.php
+    scanFiles:
+        - vendor/pestphp/pest/src/Functions.php
     tmpDir: build/phpstan
