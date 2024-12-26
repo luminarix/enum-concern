@@ -39,4 +39,6 @@ jobs:
         run: phpstan
 
       - name: Run Composer Dependency Analyser
-        run: composer-dependency-analyser
+        run: |
+          composer require --dev shipmonk/composer-dependency-analyser
+          compsoer exec -- composer-dependency-analyser
