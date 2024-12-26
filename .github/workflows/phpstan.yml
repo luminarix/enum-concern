@@ -36,7 +36,9 @@ jobs:
         uses: ramsey/composer-install@v3
 
       - name: Run PHPStan
-        run: phpstan
+        run: |
+          composer require --dev pestphp/pest
+          phpstan
 
       - name: Run Composer Dependency Analyser
         run: |

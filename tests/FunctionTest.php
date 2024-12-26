@@ -8,8 +8,10 @@ use Luminarix\EnumConcern\Tests\Enums\StringBackedEnum;
 
 /**
  * Helper function to test methods across different enums.
+ *
+ * @param  class-string  $enumClass
  */
-function testEnumMethods($enumClass, $expectedValues, $expectedNames, $expectedArray)
+function testEnumMethods(string $enumClass, array $expectedValues, array $expectedNames, array $expectedArray): void
 {
     it("returns the values as a collection for {$enumClass}", function () use ($enumClass, $expectedValues) {
         $test = $enumClass::values();
