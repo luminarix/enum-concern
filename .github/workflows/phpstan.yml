@@ -25,7 +25,7 @@ jobs:
         with:
           php-version: '8.3'
           coverage: none
-          tools: phpstan
+          tools: phpstan,composer-dependency-analyser
 
       - name: Remove development dependencies
         run: |
@@ -37,3 +37,6 @@ jobs:
 
       - name: Run PHPStan
         run: phpstan
+
+      - name: Run Composer Dependency Analyser
+        run: composer-dependency-analyser
