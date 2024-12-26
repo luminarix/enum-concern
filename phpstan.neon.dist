@@ -5,10 +5,5 @@ parameters:
     level: 9
     paths:
         - src
+        - tests/FunctionTest.php
     tmpDir: build/phpstan
-    reportUnmatchedIgnoredErrors: true
-    ignoreErrors:
-        -
-            identifier: trait.unused
-            path: src/EnumConcern.php
-            count: 1
