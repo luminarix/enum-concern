@@ -6,4 +6,9 @@ parameters:
     paths:
         - src
     tmpDir: build/phpstan
-    reportUnmatchedIgnoredErrors: false
+    reportUnmatchedIgnoredErrors: true
+    ignoreErrors:
+        -
+            identifier: trait.unused
+            path: src/EnumConcern.php
+            count: 1
