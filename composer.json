@@ -17,6 +17,7 @@
     ],
     "require": {
         "php": "^8.3",
+        "ext-mbstring": "*",
         "spatie/laravel-package-tools": "^1.16",
         "illuminate/collections": "^11.0",
         "illuminate/contracts": "^11.0"
@@ -35,8 +36,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Luminarix\\EnumConcern\\": "src/",
-            "Luminarix\\EnumConcern\\Database\\Factories\\": "database/factories/"
+            "Luminarix\\EnumConcern\\": "src/"
         }
     },
     "autoload-dev": {
