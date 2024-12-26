@@ -2,6 +2,15 @@
 
 All notable changes to `enum-concern` will be documented in this file.
 
+## v1.1.3 - 2024-12-26
+
+### What's Changed
+
+* Run Composer Dependency Analyser in CI by @szepeviktor in https://github.com/luminarix/enum-concern/pull/3
+* Try really running PHPStan by @szepeviktor in https://github.com/luminarix/enum-concern/pull/4
+
+**Full Changelog**: https://github.com/luminarix/enum-concern/compare/v1.1.2...v1.1.3
+
 ## v1.1.2 - 2024-12-26
 
 ### What's Changed
