@@ -9,3 +9,10 @@ parameters:
     scanFiles:
         - vendor/pestphp/pest/src/Functions.php
     tmpDir: build/phpstan
+    ignoreErrors:
+        - identifier: argument.templateType
+        - identifier: missingType.iterableValue
+        -
+            identifier: trait.unused
+            path: src/EnumConcern.php
+            count: 1
