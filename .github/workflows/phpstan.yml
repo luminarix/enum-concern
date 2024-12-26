@@ -25,7 +25,7 @@ jobs:
         with:
           php-version: '8.3'
           coverage: none
-          tools: phpstan
+          tools: phpstan,composer-dependency-analyser
 
       - name: Remove development dependencies
         run: |
@@ -39,3 +39,8 @@ jobs:
         run: |
           composer require --dev pestphp/pest
           phpstan
+
+      - name: Run Composer Dependency Analyser
+        run: |
+          composer require --dev shipmonk/composer-dependency-analyser
+          composer exec -- composer-dependency-analyser
