@@ -10,6 +10,9 @@ use Luminarix\EnumConcern\Tests\Enums\StringBackedEnum;
  * Helper function to test methods across different enums.
  *
  * @param  class-string  $enumClass
+ * @param  array<string|int>  $expectedValues
+ * @param  array<string>  $expectedNames
+ * @param  array<string, string|int>  $expectedArray
  */
 function testEnumMethods(string $enumClass, array $expectedValues, array $expectedNames, array $expectedArray): void
 {

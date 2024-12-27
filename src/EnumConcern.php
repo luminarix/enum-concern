@@ -17,6 +17,7 @@ trait EnumConcern
      */
     public static function isBackedEnum(): bool
     {
+        // @phpstan-ignore function.alreadyNarrowedType, function.impossibleType
         return is_subclass_of(static::class, BackedEnum::class);
     }
 
@@ -26,7 +27,7 @@ trait EnumConcern
      */
     public static function values(): Collection
     {
-        if (static::isBackedEnum()) {
+        if (self::isBackedEnum()) {
             return self::toCollection()->pluck('value');
         }
 
@@ -45,10 +46,15 @@ trait EnumConcern
     /**
      * Converts the enum cases into an associative array with names as keys and values as values.
      * For pure enums, the values are the names.
+     *
+     * @return array<string, string|int>
      */
     public static function toArray(): array
     {
-        return self::toKeyValueCollection()->toArray();
+        /** @var array<string, string|int> $result */
+        $result = self::toKeyValueCollection()->toArray();
+
+        return $result;
     }
 
     /**
@@ -65,10 +71,14 @@ trait EnumConcern
      */
     public static function toSelectCollection(): Collection
     {
+        // @phpstan-ignore argument.type
         return self::toCollection()->mapWithKeys(function (UnitEnum $case) {
-            $key = static::isBackedEnum() ? $case->value : $case->name;
+            if (self::isBackedEnum()) {
+                /** @var BackedEnum $case */
+                return [$case->value => self::getLabel($case)];
+            }
 
-            return [$key => self::getLabel($case)];
+            return [$case->name => self::getLabel($case)];
         });
     }
 
@@ -77,6 +87,7 @@ trait EnumConcern
      */
     public static function labels(): Collection
     {
+        // @phpstan-ignore argument.type
         return self::toCollection()->mapWithKeys(fn (UnitEnum $case) => [$case->name => self::getLabel($case)]);
     }
 
@@ -94,16 +105,20 @@ trait EnumConcern
      */
     public static function random(?int $count = null): Collection|static
     {
-        return self::toCollection()->random($count);
+        /** @var Collection|static $result */
+        $result = self::toCollection()->random($count);
+
+        return $result;
     }
 
     /**
      * Attempts to return the enum case for the given value; returns null if not found.
      * For pure enums, uses the name instead.
      */
-    public static function tryFromValue(mixed $value): ?static
+    public static function tryFromValue(string|int $value): ?static
     {
-        if (static::isBackedEnum()) {
+        if (self::isBackedEnum()) {
+            // @phpstan-ignore staticMethod.notFound
             return static::tryFrom($value);
         }
 
@@ -116,16 +131,19 @@ trait EnumConcern
      */
     public static function tryFromName(string $name): ?static
     {
-        return self::toCollection()->firstWhere('name', $name);
+        /** @var ?static $result */
+        $result = self::toCollection()->firstWhere('name', $name);
+
+        return $result;
     }
 
     /**
      * Checks if the enum contains the specified value; returns a boolean.
      * For pure enums, checks the name.
      */
-    public static function hasValue(mixed $value): bool
+    public static function hasValue(string|int $value): bool
     {
-        if (static::isBackedEnum()) {
+        if (self::isBackedEnum()) {
             return self::values()->contains($value);
         }
 
@@ -168,12 +186,20 @@ trait EnumConcern
 
     /**
      * Returns attributes associated with the enum case.
+     *
+     * @return array<mixed>
      */
     public function getAttributes(): array
     {
         $reflection = new ReflectionClass($this);
         $caseName = $this->name;
-        $attrs = $reflection->getReflectionConstant($caseName)?->getAttributes() ?? [];
+        $reflectionConstant = $reflection->getReflectionConstant($caseName);
+
+        if ($reflectionConstant === false) {
+            return [];
+        }
+
+        $attrs = $reflectionConstant->getAttributes();
 
         $attributes = [];
         foreach ($attrs as $attr) {
@@ -189,9 +215,17 @@ trait EnumConcern
     public function next(): ?static
     {
         $cases = self::toCollection();
+        /** @var int|false $index */
         $index = $cases->search($this, strict: true);
 
-        return $cases->get($index + 1);
+        if ($index === false) {
+            return null;
+        }
+
+        /** @var ?static $result */
+        $result = $cases->get($index + 1);
+
+        return $result;
     }
 
     /**
@@ -200,9 +234,17 @@ trait EnumConcern
     public function previous(): ?static
     {
         $cases = self::toCollection();
+        /** @var int|false $index */
         $index = $cases->search($this, strict: true);
 
-        return $cases->get($index - 1);
+        if ($index === false) {
+            return null;
+        }
+
+        /** @var ?static $result */
+        $result = $cases->get($index - 1);
+
+        return $result;
     }
 
     /**
@@ -231,22 +273,26 @@ trait EnumConcern
      */
     public static function fromJson(string $json): Collection
     {
+        /** @var list<string|int> $data */
         $data = json_decode($json, true);
 
-        if (static::isBackedEnum()) {
-            return collect($data)->map(fn (mixed $value) => static::from($value));
+        if (self::isBackedEnum()) {
+            // @phpstan-ignore staticMethod.notFound
+            return collect($data)->map(fn (int|string $value) => static::from($value));
         }
 
-        // For pure enums, keys are names
-        return collect($data)->keys()->map(fn (string $name) => self::tryFromName($name));
+        /** @var list<string> $data */
+        return collect($data)->map(fn (string $name) => self::tryFromName($name));
     }
 
     /**
      * Provides validation rules for the enum, useful for Form Requests.
+     *
+     * @return array<string>
      */
     public static function rules(): array
     {
-        $values = static::isBackedEnum() ? self::values() : self::names();
+        $values = self::isBackedEnum() ? self::values() : self::names();
 
         return ['in:' . $values->implode(',')];
     }
@@ -256,10 +302,14 @@ trait EnumConcern
      */
     public static function transLabels(): Collection
     {
+        // @phpstan-ignore argument.type
         return self::toCollection()->mapWithKeys(function (UnitEnum $case) {
-            $key = static::isBackedEnum() ? $case->value : $case->name;
+            if (self::isBackedEnum()) {
+                /** @var BackedEnum $case */
+                return [$case->value => __($case->name)];
+            }
 
-            return [$key => __($case->name)];
+            return [$case->name => __($case->name)];
         });
     }
 
@@ -275,9 +325,9 @@ trait EnumConcern
      * Retrieves the name/key associated with a given value.
      * For pure enums, returns the name if it exists.
      */
-    public static function getKeyByValue(mixed $value): ?string
+    public static function getKeyByValue(string|int $value): ?string
     {
-        if (static::isBackedEnum()) {
+        if (self::isBackedEnum()) {
             return self::tryFromValue($value)?->name;
         }
 
@@ -289,9 +339,10 @@ trait EnumConcern
      * Retrieves the value associated with a given name/key.
      * For pure enums, value is the name.
      */
-    public static function getValueByKey(string $key): mixed
+    public static function getValueByKey(string $key): string|int|null
     {
-        if (static::isBackedEnum()) {
+        if (self::isBackedEnum()) {
+            // @phpstan-ignore property.notFound
             return self::tryFromName($key)?->value;
         }
 
@@ -345,7 +396,15 @@ trait EnumConcern
     public static function sort(string $direction = 'asc'): Collection
     {
         $sorted = self::toCollection()->sortBy(
-            callback: fn (UnitEnum $case) => static::isBackedEnum() ? $case->value : $case->name,
+            // @phpstan-ignore argument.type
+            callback: function (UnitEnum $case) {
+                if (self::isBackedEnum()) {
+                    /** @var BackedEnum $case */
+                    return $case->value;
+                }
+
+                return $case->name;
+            },
             options: SORT_REGULAR,
             descending: ($direction === 'desc')
         );
@@ -364,7 +423,7 @@ trait EnumConcern
     /**
      * Checks if a value or name exists within the enum cases.
      */
-    public static function contains(mixed $valueOrName): bool
+    public static function contains(string|int $valueOrName): bool
     {
         return self::hasValue($valueOrName) || self::hasName((string)$valueOrName);
     }
@@ -375,19 +434,28 @@ trait EnumConcern
      */
     public static function toKeyValueCollection(): Collection
     {
+        // @phpstan-ignore argument.type
         return self::toCollection()->mapWithKeys(function (UnitEnum $case) {
-            $value = static::isBackedEnum() ? $case->value : $case->name;
+            if (self::isBackedEnum()) {
+                /** @var BackedEnum $case */
+                return [$case->name => $case->value];
+            }
 
-            return [$case->name => $value];
+            return [$case->name => $case->name];
         });
     }
 
     /**
      * Lists all constants defined in the enum class.
+     *
+     * @return array<string, static>
      */
     public static function listConstants(): array
     {
-        return (new ReflectionClass(static::class))->getConstants();
+        /** @var array<string, static> $result */
+        $result = (new ReflectionClass(static::class))->getConstants();
+
+        return $result;
     }
 
     /**
@@ -395,7 +463,10 @@ trait EnumConcern
      */
     public static function first(): ?static
     {
-        return self::toCollection()->first();
+        /** @var ?static $result */
+        $result = self::toCollection()->first();
+
+        return $result;
     }
 
     /**
@@ -403,7 +474,10 @@ trait EnumConcern
      */
     public static function last(): ?static
     {
-        return self::toCollection()->last();
+        /** @var ?static $result */
+        $result = self::toCollection()->last();
+
+        return $result;
     }
 
     /**
