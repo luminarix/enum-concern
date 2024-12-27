@@ -126,7 +126,7 @@ trait EnumConcern
     /**
      * Compares two enum instances for equality.
      */
-    public function is(self $other): bool
+    public function is(UnitEnum $other): bool
     {
         return $this === $other;
     }
@@ -134,7 +134,7 @@ trait EnumConcern
     /**
      * Checks if two enum instances are not equal.
      */
-    public function isNot(self $other): bool
+    public function isNot(UnitEnum $other): bool
     {
         return !$this->is($other);
     }
