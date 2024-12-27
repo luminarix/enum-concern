@@ -10,5 +10,9 @@ parameters:
     tmpDir: build/phpstan
     reportUnmatchedIgnoredErrors: true
     ignoreErrors:
-        - identifier: argument.templateType
-        - identifier: missingType.generics
+        -
+            identifier: argument.templateType
+            path: tests/**
+        -
+            identifier: missingType.generics
+            path: tests/**
