@@ -2,6 +2,10 @@
 
 All notable changes to `enum-concern` will be documented in this file.
 
+## v1.2.0 - 2024-12-27
+
+**Full Changelog**: https://github.com/luminarix/enum-concern/compare/v1.1.3...v1.2.0
+
 ## v1.1.3 - 2024-12-26
 
 ### What's Changed
