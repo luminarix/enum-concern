@@ -5,10 +5,8 @@ parameters:
     level: 9
     paths:
         - src
-        - tests/FunctionTest.php
-        - tests/Enums
-    scanFiles:
-        - vendor/pestphp/pest/src/Functions.php
+        - tests/UseTraitUnitEnum.php
+        - tests/UseTraitBackedEnum.php
     tmpDir: build/phpstan
     reportUnmatchedIgnoredErrors: true
     ignoreErrors:
