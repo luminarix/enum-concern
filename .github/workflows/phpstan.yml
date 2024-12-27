@@ -38,7 +38,7 @@ jobs:
       - name: Run PHPStan
         run: |
           composer require --dev pestphp/pest
-          phpstan
+          phpstan analyze -v
 
       - name: Run Composer Dependency Analyser
         run: |

@@ -13,6 +13,8 @@ trait EnumConcern
 {
     /**
      * Check if the current enum is a BackedEnum.
+     *
+     * @ phpstan-assert-if-true \BackedEnum $this
      */
     public static function isBackedEnum(): bool
     {
@@ -50,10 +52,10 @@ trait EnumConcern
      */
     public static function toArray(): array
     {
-        /** @var array<string, string|int> $result */
-        $result = self::toKeyValueCollection()->toArray();
-
-        return $result;
+        return array_combine(
+            array_column(self::cases(), 'name'),
+            array_column(self::cases(), 'value')
+        );
     }
 
     /**
@@ -61,7 +63,7 @@ trait EnumConcern
      */
     public static function toCollection(): Collection
     {
-        return collect(self::cases());
+        return new Collection(self::cases());
     }
 
     /**
@@ -120,7 +122,7 @@ trait EnumConcern
      */
     public static function hasName(string $name): bool
     {
-        return self::names()->contains($name);
+        return defined("self::{$name}");
     }
 
     /**
