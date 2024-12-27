@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Luminarix\EnumConcern\Tests\Enums\IntBackedEnum;
 use Luminarix\EnumConcern\Tests\Enums\SimpleEnum;
 use Luminarix\EnumConcern\Tests\Enums\StringBackedEnum;
@@ -47,15 +46,6 @@ function testEnumMethods(string $enumClass, array $expectedValues, array $expect
         expect($test)
             ->toBeInstanceOf(Collection::class)
             ->toEqual($expectation);
-    });
-
-    it("returns the labels as a collection for {$enumClass}", function () use ($enumClass, $expectedNames) {
-        $test = $enumClass::labels();
-        $expectedLabels = collect($expectedNames)->mapWithKeys(fn ($name) => [$name => Str::headline(mb_strtolower($name))]);
-
-        expect($test)
-            ->toBeInstanceOf(Collection::class)
-            ->toEqual($expectedLabels);
     });
 
     it("gets a random enum case for {$enumClass}", function () use ($enumClass) {
@@ -159,16 +149,6 @@ function testEnumMethods(string $enumClass, array $expectedValues, array $expect
         expect($rules)
             ->toBeArray()
             ->toEqual($expectedRule);
-    });
-
-    it("translates labels in {$enumClass}", function () use ($enumClass, $expectedValues, $expectedNames) {
-        // Assuming translation files are set up
-        $labels = $enumClass::transLabels();
-        $expectedKeys = is_subclass_of($enumClass, BackedEnum::class) ? $expectedValues : $expectedNames;
-
-        expect($labels)
-            ->toBeInstanceOf(Collection::class)
-            ->toHaveKeys($expectedKeys);
     });
 
     it("applies a callback with map in {$enumClass}", function () use ($enumClass) {

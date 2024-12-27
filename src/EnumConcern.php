@@ -6,7 +6,6 @@ namespace Luminarix\EnumConcern;
 
 use BackedEnum;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use ReflectionClass;
 use UnitEnum;
 
@@ -63,41 +62,6 @@ trait EnumConcern
     public static function toCollection(): Collection
     {
         return collect(self::cases());
-    }
-
-    /**
-     * Provides a Collection suitable for populating HTML select options.
-     * For pure enums, uses names as values.
-     */
-    public static function toSelectCollection(): Collection
-    {
-        // @phpstan-ignore argument.type
-        return self::toCollection()->mapWithKeys(function (UnitEnum $case) {
-            if (self::isBackedEnum()) {
-                /** @var BackedEnum $case */
-                return [$case->value => self::getLabel($case)];
-            }
-
-            return [$case->name => self::getLabel($case)];
-        });
-    }
-
-    /**
-     * Returns a Collection of human-readable labels or descriptions for each enum case.
-     */
-    public static function labels(): Collection
-    {
-        // @phpstan-ignore argument.type
-        return self::toCollection()->mapWithKeys(fn (UnitEnum $case) => [$case->name => self::getLabel($case)]);
-    }
-
-    /**
-     * Retrieves the label or description for a specific enum case.
-     */
-    public static function getLabel(UnitEnum $case): string
-    {
-        // Customize this method based on how you define labels.
-        return Str::headline(mb_strtolower($case->name));
     }
 
     /**
@@ -173,15 +137,6 @@ trait EnumConcern
     public function isNot(self $other): bool
     {
         return !$this->is($other);
-    }
-
-    /**
-     * Retrieves a description for the current enum case.
-     */
-    public function getDescription(): string
-    {
-        // Customize this method based on how you define descriptions.
-        return self::getLabel($this);
     }
 
     /**
@@ -295,30 +250,6 @@ trait EnumConcern
         $values = self::isBackedEnum() ? self::values() : self::names();
 
         return ['in:' . $values->implode(',')];
-    }
-
-    /**
-     * Returns a Collection of translated labels for each enum case.
-     */
-    public static function transLabels(): Collection
-    {
-        // @phpstan-ignore argument.type
-        return self::toCollection()->mapWithKeys(function (UnitEnum $case) {
-            if (self::isBackedEnum()) {
-                /** @var BackedEnum $case */
-                return [$case->value => __($case->name)];
-            }
-
-            return [$case->name => __($case->name)];
-        });
-    }
-
-    /**
-     * Returns data formatted for Blade templates, facilitating the creation of form select inputs.
-     */
-    public static function selectOptions(): Collection
-    {
-        return self::toSelectCollection();
     }
 
     /**
