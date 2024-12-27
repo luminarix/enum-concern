@@ -25,7 +25,27 @@ jobs:
         with:
           php-version: '8.3'
           coverage: none
-          tools: phpstan,composer-dependency-analyser
+          tools: phpstan
+
+      - name: Install composer dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: Run PHPStan
+        run: phpstan
+
+  cda:
+    name: composer-dependency-analyser
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer-dependency-analyser
 
       - name: Remove development dependencies
         run: |
@@ -34,9 +54,6 @@ jobs:
 
       - name: Install composer dependencies
         uses: ramsey/composer-install@v3
-
-      - name: Run PHPStan
-        run: phpstan
 
       - name: Run Composer Dependency Analyser
         run: |
