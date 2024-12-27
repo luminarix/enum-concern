@@ -46,7 +46,7 @@ body:
         description: What version of Laravel are you running? Please be as specific as possible
         placeholder: 11.0.0
       validations:
-        required: true
+        required: false
     - type: dropdown
       id: operating-systems
       attributes:
