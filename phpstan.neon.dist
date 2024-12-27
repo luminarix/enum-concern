@@ -14,7 +14,7 @@ parameters:
     ignoreErrors:
         -
             identifier: argument.templateType
-            paths: tests/**
+            path: tests/**
         -
             identifier: missingType.generics
-            paths: tests/**
+            path: tests/**
