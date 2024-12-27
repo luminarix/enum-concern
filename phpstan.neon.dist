@@ -5,8 +5,7 @@ parameters:
     level: 9
     paths:
         - src
-        - tests/UseTraitUnitEnum.php
-        - tests/UseTraitBackedEnum.php
+        - tests/Enums
     tmpDir: build/phpstan
     reportUnmatchedIgnoredErrors: true
     ignoreErrors:
