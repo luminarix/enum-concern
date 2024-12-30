@@ -55,6 +55,4 @@ jobs:
         uses: ramsey/composer-install@v3
 
       - name: Run Composer Dependency Analyser
-        run: |
-          composer require --dev shipmonk/composer-dependency-analyser
-          composer exec -- composer-dependency-analyser
+        run: composer exec -- composer-dependency-analyser
