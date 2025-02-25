@@ -2,6 +2,20 @@
 
 All notable changes to `enum-concern` will be documented in this file.
 
+## v1.2.2 - 2025-02-25
+
+### What's Changed
+
+* Use setup-php installed composer-dependency-analyser by @szepeviktor in https://github.com/luminarix/enum-concern/pull/10
+* Bump dependabot/fetch-metadata from 2.2.0 to 2.3.0 by @dependabot in https://github.com/luminarix/enum-concern/pull/11
+* Bump aglipanci/laravel-pint-action from 2.4 to 2.5 by @dependabot in https://github.com/luminarix/enum-concern/pull/12
+
+### New Contributors
+
+* @dependabot made their first contribution in https://github.com/luminarix/enum-concern/pull/11
+
+**Full Changelog**: https://github.com/luminarix/enum-concern/compare/v1.2.1...v1.2.2
+
 ## v1.2.1 - 2024-12-27
 
 ### What's Changed
