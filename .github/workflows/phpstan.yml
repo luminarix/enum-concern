@@ -27,7 +27,7 @@ jobs:
           coverage: none
 
       - name: Install composer dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
 
       - name: Run PHPStan
         run: ./vendor/bin/phpstan analyze -v
@@ -52,7 +52,7 @@ jobs:
             | xargs -- composer remove --no-interaction --dev --no-update --no-plugins --no-scripts
 
       - name: Install composer dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
 
       - name: Run Composer Dependency Analyser
         run: composer exec -- composer-dependency-analyser
